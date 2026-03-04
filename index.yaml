@@ -1,3 +1,14 @@
 apiVersion: v1
-entries: {}
-generated: "2026-03-04T20:51:52.000000Z"
+entries:
+  searxng:
+  - apiVersion: v2
+    appVersion: 2024.10.7-0
+    created: "2026-03-04T21:02:49.994603838Z"
+    description: A Helm chart for SearXNG, a privacy-respecting metasearch engine
+    digest: dbf853e9c3fd60f635170da126e509ec4567373e170db7e0132a84277a1c9f44
+    name: searxng
+    type: application
+    urls:
+    - https://github.com/bkero/searxng-helm-chart/releases/download/searxng-0.1.0/searxng-0.1.0.tgz
+    version: 0.1.0
+generated: "2026-03-04T21:02:49.994609646Z"
