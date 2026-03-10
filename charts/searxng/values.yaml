@@ -3,10 +3,40 @@ image:
   tag: ""  # defaults to appVersion
   pullPolicy: IfNotPresent
 
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
 replicaCount: 1
 
 strategy:
   type: Recreate
+  # For RollingUpdate:
+  # type: RollingUpdate
+  # rollingUpdate:
+  #   maxSurge: 1
+  #   maxUnavailable: 0
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 977
+  runAsGroup: 977
+  fsGroup: 977
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
 
 resources:
   limits:
@@ -20,37 +50,65 @@ service:
   port: 80
 
 ingress:
-  enabled: true
-  className: traefik
-  annotations:
-    cert-manager.io/cluster-issuer: bkero-issuer
+  enabled: false
+  className: ""
+  annotations: {}
+  # Example with cert-manager:
+  #   cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts:
-    - host: search.privacyplz.org
+    - host: searxng.example.com
       paths:
         - path: /
           pathType: Prefix
-  tls:
-    - secretName: searxng-tls
-      hosts:
-        - search.privacyplz.org
+  tls: []
+  # Example:
+  #   - secretName: searxng-tls
+  #     hosts:
+  #       - searxng.example.com
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
 
 # Environment variables passed to the container.
-# SEARXNG_SECRET and BASE_URL are the canonical env-var overrides.
+# SEARXNG_SECRET overrides the secret key managed by this chart.
+# BASE_URL must match the public URL of your instance.
 env:
-  BASE_URL: https://search.privacyplz.org
+  BASE_URL: "http://searxng.example.com"
   INSTANCE_NAME: searxng
   AUTOCOMPLETE: "false"
-  # SEARXNG_SECRET: ""  # set this to override server.secret_key below
 
-# Contents rendered into /etc/searxng/settings.yml
+# List of envFrom sources (e.g. secretRef, configMapRef) injected into the container.
+# Use this to pass secrets like SEARXNG_REDIS__URL from a Kubernetes Secret.
+envFrom: []
+# Example:
+#   - secretRef:
+#       name: searxng-secrets
+
 searxng:
+  # Secret key for SearXNG. Set this to a random string.
+  # If left empty, a random value is generated and preserved across upgrades.
+  # To use an existing Kubernetes Secret, set existingSecret and existingSecretKey instead.
+  secretKey: ""
+  existingSecret: ""
+  existingSecretKey: "secret-key"
+
+  # Contents rendered into /etc/searxng/settings.yml
   settings:
     use_default_settings:
       engines:
         remove:
           - wikidata
     server:
-      secret_key: ""  # override in deployment or via SEARXNG_SECRET env var
       bind_address: "0.0.0.0:8080"
     redis:
       url: ""  # e.g. redis://default:password@redis-master.redis.svc.cluster.local

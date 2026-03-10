@@ -2,5 +2,18 @@ apiVersion: v2
 name: searxng
 description: A Helm chart for SearXNG, a privacy-respecting metasearch engine
 type: application
-version: 0.1.0
+version: 0.2.0
 appVersion: "2024.10.7-0"
+keywords:
+  - searxng
+  - search
+  - privacy
+  - metasearch
+home: https://github.com/bkero/searxng-helm
+sources:
+  - https://github.com/bkero/searxng-helm
+  - https://github.com/searxng/searxng
+icon: https://raw.githubusercontent.com/searxng/searxng/master/src/brand/searxng-wordmark.svg
+maintainers:
+  - name: bkero
+    url: https://github.com/bkero

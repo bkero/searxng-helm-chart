@@ -47,3 +47,32 @@ Selector labels.
 app.kubernetes.io/name: {{ include "searxng.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Service account name.
+*/}}
+{{- define "searxng.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "searxng.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{/*
+Name of the secret holding the SearXNG secret key.
+*/}}
+{{- define "searxng.secretName" -}}
+{{- if .Values.searxng.existingSecret }}
+{{- .Values.searxng.existingSecret }}
+{{- else }}
+{{- include "searxng.fullname" . }}
+{{- end }}
+{{- end }}
+
+{{/*
+Key within the secret that holds the SearXNG secret key.
+*/}}
+{{- define "searxng.secretKey" -}}
+{{- .Values.searxng.existingSecretKey | default "secret-key" }}
+{{- end }}

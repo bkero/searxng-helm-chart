@@ -1,0 +1,31 @@
+SearXNG has been deployed.
+
+{{- if .Values.ingress.enabled }}
+{{- range .Values.ingress.hosts }}
+  Access your instance at: http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+{{- end }}
+{{- else if contains "NodePort" .Values.service.type }}
+  export NODE_PORT=$(kubectl get svc {{ include "searxng.fullname" . }} -n {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}")
+  export NODE_IP=$(kubectl get nodes -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo "http://$NODE_IP:$NODE_PORT"
+{{- else if contains "LoadBalancer" .Values.service.type }}
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+  export SERVICE_IP=$(kubectl get svc {{ include "searxng.fullname" . }} -n {{ .Release.Namespace }} -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
+  echo "http://$SERVICE_IP:{{ .Values.service.port }}"
+{{- else }}
+  kubectl port-forward svc/{{ include "searxng.fullname" . }} 8080:{{ .Values.service.port }} -n {{ .Release.Namespace }}
+  Access your instance at: http://localhost:8080
+{{- end }}
+
+{{- if not .Values.searxng.existingSecret }}
+{{- if not .Values.searxng.secretKey }}
+
+NOTE: No secretKey was provided. A random secret key was generated and stored in
+Secret/{{ include "searxng.fullname" . }}. It will be preserved across upgrades.
+To set an explicit key, add to your values:
+
+  searxng:
+    secretKey: "your-random-secret"
+
+{{- end }}
+{{- end }}
